@@ -42,6 +42,6 @@ module.exports = {
       patterns: [{ from: 'src/lib', to: 'lib' }],
     }),
     new HtmlWebpackPlugin({ template: 'src/index.html' }),
-    new WorkerPlugin(),
+    new WorkerPlugin({ globalObject: 'self' }),
   ],
 }
