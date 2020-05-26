@@ -107,9 +107,15 @@ const main = () => {
     }
   })
 
-  const animate = function() {
-    stats.begin()
+  physics.worker.addEventListener('message', e => {
+    const { data } = e
 
+    if (data.msg === 'preUpdate') stats.begin()
+
+    if (data.msg === 'postUpdate') stats.end()
+  })
+
+  const animate = function() {
     const delta = clock.getDelta()
     // const updates = physics.update(delta * 1000)
     // for (let i = 0; i < updates.length; i += 8) {
@@ -127,8 +133,6 @@ const main = () => {
     // }
 
     renderer.render(scene, camera)
-
-    stats.end()
 
     requestAnimationFrame(animate)
   }

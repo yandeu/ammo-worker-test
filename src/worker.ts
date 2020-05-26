@@ -30,7 +30,9 @@ Ammo().then(Ammo => {
     const delta = now - last
     last = now
 
+    self.postMessage({ msg: 'preUpdate' })
     const updates = physics.update(delta)
+    self.postMessage({ msg: 'postUpdate' })
     self.postMessage({ msg: 'updates', updates })
   }, 16)
 })

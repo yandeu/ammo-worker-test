@@ -1,13 +1,13 @@
 export const createObjects = (fnc: Function) => {
   // add sphere rain
-  fnc(50)
+  fnc(5)
   const handle = setInterval(() => {
-    fnc(50)
-  }, 500)
+    fnc(5)
+  }, 100)
 
   setTimeout(() => {
     clearInterval(handle)
-  }, 10000)
+  }, 15000)
 }
 
-export const DPI = 0.5
+export const DPI = 1
