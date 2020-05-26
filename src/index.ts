@@ -4,7 +4,7 @@ import withoutWorker from './gameWithoutWorker'
 const main = () => {
   Promise.all([withoutWorker(), withWorker()]).then(res => {
     //@ts-ignore
-    //res[0]()
+    res[0]()
     //@ts-ignore
     res[1]()
   })

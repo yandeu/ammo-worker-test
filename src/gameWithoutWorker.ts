@@ -8,7 +8,7 @@ import Stats from 'stats.js'
 const main = () => {
   var stats = new Stats()
   stats.showPanel(0) // 0: fps, 1: ms, 2: mb, 3+: custom
-  document.body.appendChild(stats.dom)
+  document.getElementById('stats1')?.appendChild(stats.dom)
 
   const physics = new Physics()
   const objects = new Map()
