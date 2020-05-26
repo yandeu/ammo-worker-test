@@ -121,6 +121,6 @@ export class Physics {
       solver,
       collisionConfiguration
     )
-    this.setGravity(0, -9.81, 0)
+    this.setGravity(0, -9.81 * 2, 0)
   }
 }

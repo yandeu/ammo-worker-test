@@ -7,16 +7,16 @@ module.exports = {
   mode: 'development',
   devtool: 'inline-source-map',
   devServer: {
-    port: 8080
+    port: 8080,
   },
   entry: './src/index.ts',
   output: {
     filename: 'bundle.js',
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, 'dist'),
   },
   resolve: {
     // Add `.ts` and `.tsx` as a resolvable extension.
-    extensions: ['.ts', '.tsx', '.js']
+    extensions: ['.ts', '.tsx', '.js'],
   },
   module: {
     rules: [
@@ -30,18 +30,18 @@ module.exports = {
             loader: 'file-loader',
             options: {
               name: 'wasm/[name].[hash].[ext]',
-              publicPath: '../'
-            }
-          }
-        ]
-      }
-    ]
+              publicPath: '../',
+            },
+          },
+        ],
+      },
+    ],
   },
   plugins: [
     new CopyPlugin({
-      patterns: [{ from: 'src/lib', to: 'lib' }]
+      patterns: [{ from: 'src/lib', to: 'lib' }],
     }),
-    new HtmlWebpackPlugin(),
-    new WorkerPlugin()
-  ]
+    new HtmlWebpackPlugin({ template: 'src/index.html' }),
+    new WorkerPlugin(),
+  ],
 }

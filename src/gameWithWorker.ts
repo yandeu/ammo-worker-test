@@ -1,33 +1,31 @@
 import { AmmoPhysics } from './ammoPhysics'
-
-// @ts-ignore
-import Stats from 'stats.js'
-
-var stats = new Stats()
-stats.showPanel(0) // 0: fps, 1: ms, 2: mb, 3+: custom
-document.body.appendChild(stats.dom)
-
 import * as THREE from 'three'
+import { createObjects, DPI } from './common'
+
+//@ts-ignore
+import Stats from 'stats.js'
 
 const physics = new AmmoPhysics()
 
 const main = () => {
+  var stats = new Stats()
+  stats.showPanel(0) // 0: fps, 1: ms, 2: mb, 3+: custom
+  document.body.appendChild(stats.dom)
+
   const objects = new Map()
 
+  const width = window.innerWidth / 2 - 1
+  const height = window.innerHeight
+
   const scene = new THREE.Scene()
-  const camera = new THREE.PerspectiveCamera(
-    50,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    1000
-  )
-  camera.position.set(30, 15, 15)
+  const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000)
+  camera.position.set(50, 25, 25)
   camera.lookAt(0, 0, 0)
 
   const renderer = new THREE.WebGLRenderer()
-  renderer.setSize(window.innerWidth, window.innerHeight)
-  renderer.setPixelRatio(0.5)
-  document.body.appendChild(renderer.domElement)
+  renderer.setSize(width, height)
+  renderer.setPixelRatio(DPI)
+  document.getElementById('canvas2')?.appendChild(renderer.domElement)
 
   var directionalLight = new THREE.DirectionalLight(0xffffff, 0.8)
   scene.add(directionalLight)
@@ -35,15 +33,15 @@ const main = () => {
   scene.add(light)
 
   // add ground
-  const geometry = new THREE.BoxGeometry(40, 1, 40)
+  const geometry = new THREE.BoxGeometry(20, 1, 20)
   const material = new THREE.MeshLambertMaterial({ color: 'darkgray' })
   const ground = new THREE.Mesh(geometry, material)
   scene.add(ground)
   physics.addBox({
     uuid: ground.uuid,
-    width: 40,
+    width: 20,
     height: 1,
-    depth: 40,
+    depth: 20,
     collisionFlags: 1,
     mass: 0,
   })
@@ -59,7 +57,7 @@ const main = () => {
     physics.addSphere({ uuid: sphere.uuid })
     objects.set(sphere.uuid, sphere)
   }
-  const addBox = () => {
+  const addBox = (x?: number, y?: number, z?: number) => {
     const box = new THREE.Mesh(boxGeo, mat)
     scene.add(box)
     physics.addBox({
@@ -67,9 +65,9 @@ const main = () => {
       width: 1,
       height: 1,
       depth: 1,
-      x: (Math.random() - 0.5) * 10,
-      y: Math.random() * 10 + 20,
-      z: (Math.random() - 0.5) * 10,
+      x: x || (Math.random() - 0.5) * 10,
+      y: y || Math.random() * 10 + 20,
+      z: z || (Math.random() - 0.5) * 10,
     })
     objects.set(box.uuid, box)
   }
@@ -81,15 +79,15 @@ const main = () => {
     }
   }
 
-  // add sphere rain
-  addObjects(10)
-  const handle = setInterval(() => {
-    addObjects(10)
-  }, 100)
+  // for (let x = -5; x < 5; x++) {
+  //   for (let z = -5; z < 5; z++) {
+  //     for (let y = 20; y < 30; y++) {
+  //       addBox(x * 1.2, y * 1.2, z * 1.2)
+  //     }
+  //   }
+  // }
 
-  setTimeout(() => {
-    clearInterval(handle)
-  }, 5000)
+  createObjects(addObjects)
 
   const clock = new THREE.Clock()
 
@@ -131,6 +129,7 @@ const main = () => {
     renderer.render(scene, camera)
 
     stats.end()
+
     requestAnimationFrame(animate)
   }
 
@@ -138,8 +137,10 @@ const main = () => {
 }
 
 const start = () => {
-  physics.init().then(() => {
-    main()
+  return new Promise(resolve => {
+    physics.init().then(() => {
+      resolve(main)
+    })
   })
 }
 
