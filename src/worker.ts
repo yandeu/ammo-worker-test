@@ -22,4 +22,8 @@ self.addEventListener('message', (e: any) => {
 Ammo().then(Ammo => {
   physics = new Physics()
   self.postMessage('ready')
+
+  physics.onUpdates((updates: any) => {
+    self.postMessage({ msg: 'updates', updates })
+  })
 })

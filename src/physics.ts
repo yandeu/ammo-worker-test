@@ -7,6 +7,8 @@ export class Physics {
   public physicsWorld: Ammo.btDiscreteDynamicsWorld
   public rigidBodies: Map<string, Ammo.btRigidBody> = new Map()
 
+  private _onUpdates = (updates: any) => {}
+
   constructor() {
     this.setupPhysicsWorld()
   }
@@ -16,8 +18,8 @@ export class Physics {
     this.physicsWorld.setGravity(this.tmpBtVector3)
   }
 
-  public getBodyInformation(uuid: string) {
-    return this.rigidBodies.get(uuid)
+  public onUpdates(fnc: (updates: any) => void) {
+    this._onUpdates = fnc
   }
 
   public update(delta: number) {
@@ -38,7 +40,7 @@ export class Physics {
       }
     })
 
-    self.postMessage({ msg: 'updates', updates })
+    this._onUpdates(updates)
   }
 
   public addSphere(params: any = {}) {
