@@ -9,19 +9,19 @@ let physics: Physics
 self.addEventListener('message', (e: any) => {
   const { data } = e
 
-  if (data.msg === 'add') {
-    if (data.type === 'box') {
-      physics.addBox({ ...data.params })
+  if (Array.isArray(data)) {
+    if (data[0] === 'add') {
+      if (data[1] === 'box') physics.add.box(data[2])
+      if (data[1] === 'sphere') physics.add.sphere(data[2])
     }
-    if (data.type === 'sphere') {
-      physics.addSphere({ ...data.params })
-    }
+    if (data[0] === 'destroy') physics.destroy(data[1])
   }
 })
 
 Ammo().then(Ammo => {
   physics = new Physics()
-  self.postMessage('ready')
+
+  self.postMessage({ msg: 'ready' })
 
   let last = new Date().getTime()
 
@@ -34,5 +34,5 @@ Ammo().then(Ammo => {
     const updates = physics.update(delta)
     self.postMessage({ msg: 'postUpdate' })
     self.postMessage({ msg: 'updates', updates })
-  }, 16)
+  }, 1000 / 60)
 })

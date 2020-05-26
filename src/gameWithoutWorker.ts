@@ -36,7 +36,7 @@ const main = () => {
   const material = new THREE.MeshLambertMaterial({ color: 'darkgray' })
   const ground = new THREE.Mesh(geometry, material)
   scene.add(ground)
-  physics.addBox({
+  physics.add.box({
     uuid: ground.uuid,
     width: 20,
     height: 1,
@@ -53,13 +53,13 @@ const main = () => {
   const addSphere = () => {
     const sphere = new THREE.Mesh(sphereGeo, mat)
     scene.add(sphere)
-    physics.addSphere({ uuid: sphere.uuid })
+    physics.add.sphere({ uuid: sphere.uuid })
     objects.set(sphere.uuid, sphere)
   }
   const addBox = (x?: number, y?: number, z?: number) => {
     const box = new THREE.Mesh(boxGeo, mat)
     scene.add(box)
-    physics.addBox({
+    physics.add.box({
       uuid: box.uuid,
       width: 1,
       height: 1,

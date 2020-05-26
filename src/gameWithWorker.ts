@@ -1,20 +1,19 @@
 import { AmmoPhysics } from './ammoPhysics'
 import * as THREE from 'three'
-import { createObjects, DPI } from './common'
 
 //@ts-ignore
 import Stats from 'stats.js'
+var stats1 = new Stats()
+stats1.showPanel(0) // 0: fps, 1: ms, 2: mb, 3+: custom
+document.getElementById('stats1')?.appendChild(stats1.dom)
+var stats2 = new Stats()
+stats2.showPanel(0) // 0: fps, 1: ms, 2: mb, 3+: custom
+document.getElementById('stats2')?.appendChild(stats2.dom)
 
 const physics = new AmmoPhysics()
 
 const main = () => {
-  var stats = new Stats()
-  stats.showPanel(0) // 0: fps, 1: ms, 2: mb, 3+: custom
-  document.getElementById('stats2')?.appendChild(stats.dom)
-
-  const objects = new Map()
-
-  const width = window.innerWidth / 2 - 1
+  const width = window.innerWidth
   const height = window.innerHeight
 
   const scene = new THREE.Scene()
@@ -24,7 +23,7 @@ const main = () => {
 
   const renderer = new THREE.WebGLRenderer()
   renderer.setSize(width, height)
-  renderer.setPixelRatio(DPI)
+  renderer.setPixelRatio(1)
   document.getElementById('canvas2')?.appendChild(renderer.domElement)
 
   var directionalLight = new THREE.DirectionalLight(0xffffff, 0.8)
@@ -37,7 +36,7 @@ const main = () => {
   const material = new THREE.MeshLambertMaterial({ color: 'darkgray' })
   const ground = new THREE.Mesh(geometry, material)
   scene.add(ground)
-  physics.addBox({
+  physics.add.box({
     uuid: ground.uuid,
     width: 20,
     height: 1,
@@ -45,7 +44,7 @@ const main = () => {
     collisionFlags: 1,
     mass: 0,
   })
-  objects.set(ground.uuid, ground)
+  physics.link(ground)
 
   const sphereGeo = new THREE.SphereGeometry(0.5)
   const boxGeo = new THREE.BoxGeometry(1, 1, 1)
@@ -54,86 +53,45 @@ const main = () => {
   const addSphere = () => {
     const sphere = new THREE.Mesh(sphereGeo, mat)
     scene.add(sphere)
-    physics.addSphere({ uuid: sphere.uuid })
-    objects.set(sphere.uuid, sphere)
+    physics.add.sphere({ uuid: sphere.uuid })
+    physics.link(sphere)
   }
-  const addBox = (x?: number, y?: number, z?: number) => {
+
+  const addBox = (x: number, y: number, z: number) => {
     const box = new THREE.Mesh(boxGeo, mat)
+    box.name = 'asdfasf'
+    box.position.set(x, y, z)
+    box.rotation.set(Math.random() * 3, Math.random() * 3, 0)
     scene.add(box)
-    physics.addBox({
-      uuid: box.uuid,
-      width: 1,
-      height: 1,
-      depth: 1,
-      x: x || (Math.random() - 0.5) * 10,
-      y: y || Math.random() * 10 + 20,
-      z: z || (Math.random() - 0.5) * 10,
-    })
-    objects.set(box.uuid, box)
+    physics.add.existing(box)
+
+    setTimeout(() => {
+      scene.remove(box)
+      physics.destroy(box.uuid)
+    }, 10000)
   }
 
-  const addObjects = (count: number) => {
-    for (let i = 0; i < count; i++) {
-      addSphere()
-      addBox()
-    }
-  }
+  const interval = setInterval(() => {
+    addBox((Math.random() - 0.5) * 10, 20, (Math.random() - 0.5) * 10)
+  }, 100)
 
-  // for (let x = -5; x < 5; x++) {
-  //   for (let z = -5; z < 5; z++) {
-  //     for (let y = 20; y < 30; y++) {
-  //       addBox(x * 1.2, y * 1.2, z * 1.2)
-  //     }
-  //   }
-  // }
+  setTimeout(() => {
+    clearInterval(interval)
+  }, 10000)
 
-  createObjects(addObjects)
-
-  const clock = new THREE.Clock()
-
-  physics.onUpdates((updates: any) => {
-    for (let i = 0; i < updates.length; i += 8) {
-      let uuid = updates[i + 0]
-      let px = updates[i + 1]
-      let py = updates[i + 2]
-      let pz = updates[i + 3]
-      let qx = updates[i + 4]
-      let qy = updates[i + 5]
-      let qz = updates[i + 6]
-      let qw = updates[i + 7]
-      let obj = objects.get(uuid)
-      obj.position.set(px, py, pz)
-      obj.rotation.setFromQuaternion(new THREE.Quaternion(qx, qy, qz, qw))
-    }
-  })
-
+  // this is only for the stats
   physics.worker.addEventListener('message', e => {
     const { data } = e
-
-    if (data.msg === 'preUpdate') stats.begin()
-
-    if (data.msg === 'postUpdate') stats.end()
+    if (data.msg === 'preUpdate') stats2.begin()
+    if (data.msg === 'postUpdate') stats2.end()
   })
 
   const animate = function() {
-    const delta = clock.getDelta()
-    // const updates = physics.update(delta * 1000)
-    // for (let i = 0; i < updates.length; i += 8) {
-    //   let uuid = updates[i + 0]
-    //   let px = updates[i + 1]
-    //   let py = updates[i + 2]
-    //   let pz = updates[i + 3]
-    //   let qx = updates[i + 4]
-    //   let qy = updates[i + 5]
-    //   let qz = updates[i + 6]
-    //   let qw = updates[i + 7]
-    //   let obj = objects.get(uuid)
-    //   // console.log(uuid)
-    //   obj.position.set(px, py, pz)
-    // }
+    stats1.begin()
 
     renderer.render(scene, camera)
 
+    stats1.end()
     requestAnimationFrame(animate)
   }
 

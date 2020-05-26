@@ -37,52 +37,51 @@ export class Physics {
     return updates
   }
 
-  public addSphere(params: any = {}) {
-    const collisionShape = new Ammo.btSphereShape(0.5)
-
-    const { uuid } = params
-    const pos = {
-      x: (Math.random() - 0.5) * 10,
-      y: Math.random() * 10 + 20,
-      z: (Math.random() - 0.5) * 10,
+  public get add() {
+    return {
+      box: (params: any) => this.addBox(params),
+      sphere: (params: any) => this.addSphere(params),
     }
-    const quat = { x: 0, y: 0, z: 0, w: 1 }
-    const mass = 1
-
-    this.collisionShapeToRigidBody(collisionShape, uuid, pos, quat, mass)
   }
 
-  public addBox(params: any = {}) {
-    // make collision shape
-    const collisionShape = new Ammo.btBoxShape(
-      new Ammo.btVector3(params.width / 2, params.height / 2, params.depth / 2)
-    )
+  public destroy(uuid: string) {
+    const rb = this.rigidBodies.get(uuid)
+    if (rb) this.physicsWorld.removeRigidBody(rb)
+  }
 
-    const { uuid } = params
-    const pos = { x: params.x || 0, y: params.y || 0, z: params.z || 0 }
-    const quat = { x: 0, y: 0, z: 0, w: 1 }
-    const mass = params.mass
-    const collisionFlags = params.collisionFlags
+  private addBox(params: any = {}) {
+    const { width = 1, height = 1, depth = 1 } = params
+    const boxHalfExtents = new Ammo.btVector3(width / 2, height / 2, depth / 2)
+    const collisionShape = new Ammo.btBoxShape(boxHalfExtents)
+    this.collisionShapeToRigidBody(collisionShape, params)
+  }
 
-    this.collisionShapeToRigidBody(
-      collisionShape,
-      uuid,
-      pos,
-      quat,
-      mass,
-      collisionFlags
-    )
+  private addSphere(params: any = {}) {
+    const { radius = 1 } = params
+    const collisionShape = new Ammo.btSphereShape(radius / 2)
+    this.collisionShapeToRigidBody(collisionShape, params)
   }
 
   public collisionShapeToRigidBody(
     collisionShape: Ammo.btCollisionShape,
-    uuid: string,
-    pos: any,
-    quat: any,
-    mass: number = 1,
-    collisionFlags = 0
+    params: any = {}
   ) {
-    // apply position and rotaton
+    // apply params
+    const {
+      uuid,
+      mass = 1,
+      collisionFlags = 0,
+      pos = { x: 0, y: 0, z: 0 },
+      quat = { x: 0, y: 0, z: 0, w: 1 },
+    } = params
+
+    // we need a uuid!
+    if (typeof uuid === 'undefined') {
+      console.warn('Please provide an uuid')
+      return
+    }
+
+    // apply position and rotation
     const transform = new Ammo.btTransform()
     transform.setIdentity()
     transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z))
@@ -103,7 +102,6 @@ export class Physics {
     // rigid body properties
     if (mass > 0) rigidBody.setActivationState(4) // Disable deactivation
     rigidBody.setCollisionFlags(collisionFlags)
-    rigidBody.setRestitution(0.8)
 
     // ad rigid body to physics world
     this.physicsWorld.addRigidBody(rigidBody)
