@@ -25,19 +25,19 @@ export class AmmoPhysics {
     this._onUpdates = fnc
   }
 
-  addSphere(uuid: string) {
+  addSphere(params: any = {}) {
     this.worker.postMessage({
       msg: 'add',
       type: 'sphere',
-      params: { uuid },
+      params: { ...params },
     })
   }
 
-  addBox(uuid: string, width = 1, height = 1, depth = 1) {
+  addBox(params: any = {}) {
     this.worker.postMessage({
       msg: 'add',
       type: 'box',
-      params: { width, height, depth, uuid },
+      params: { ...params },
     })
   }
 }

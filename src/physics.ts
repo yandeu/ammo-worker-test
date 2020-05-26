@@ -7,8 +7,6 @@ export class Physics {
   public physicsWorld: Ammo.btDiscreteDynamicsWorld
   public rigidBodies: Map<string, Ammo.btRigidBody> = new Map()
 
-  private _onUpdates = (updates: any) => {}
-
   constructor() {
     this.setupPhysicsWorld()
   }
@@ -16,10 +14,6 @@ export class Physics {
   public setGravity(x: number = 0, y: number = 0, z: number = 0) {
     this.tmpBtVector3.setValue(x, y, z)
     this.physicsWorld.setGravity(this.tmpBtVector3)
-  }
-
-  public onUpdates(fnc: (updates: any) => void) {
-    this._onUpdates = fnc
   }
 
   public update(delta: number) {
@@ -40,7 +34,7 @@ export class Physics {
       }
     })
 
-    this._onUpdates(updates)
+    return updates
   }
 
   public addSphere(params: any = {}) {
@@ -65,11 +59,19 @@ export class Physics {
     )
 
     const { uuid } = params
-    const pos = { x: 0, y: 0, z: 0 }
+    const pos = { x: params.x || 0, y: params.y || 0, z: params.z || 0 }
     const quat = { x: 0, y: 0, z: 0, w: 1 }
-    const mass = 0
+    const mass = params.mass
+    const collisionFlags = params.collisionFlags
 
-    this.collisionShapeToRigidBody(collisionShape, uuid, pos, quat, mass, 1)
+    this.collisionShapeToRigidBody(
+      collisionShape,
+      uuid,
+      pos,
+      quat,
+      mass,
+      collisionFlags
+    )
   }
 
   public collisionShapeToRigidBody(
@@ -77,7 +79,7 @@ export class Physics {
     uuid: string,
     pos: any,
     quat: any,
-    mass: number,
+    mass: number = 1,
     collisionFlags = 0
   ) {
     // apply position and rotaton
@@ -120,9 +122,5 @@ export class Physics {
       collisionConfiguration
     )
     this.setGravity(0, -9.81, 0)
-
-    setInterval(() => {
-      this.update(16)
-    }, 1000 / 60)
   }
 }

@@ -23,7 +23,14 @@ Ammo().then(Ammo => {
   physics = new Physics()
   self.postMessage('ready')
 
-  physics.onUpdates((updates: any) => {
+  let last = new Date().getTime()
+
+  setInterval(() => {
+    let now = new Date().getTime()
+    const delta = now - last
+    last = now
+
+    const updates = physics.update(delta)
     self.postMessage({ msg: 'updates', updates })
-  })
+  }, 16)
 })
