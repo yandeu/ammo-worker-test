@@ -13,6 +13,9 @@ self.addEventListener('message', (e: any) => {
     if (data.type === 'box') {
       physics.addBox({ ...data.params })
     }
+    if (data.type === 'sphere') {
+      physics.addSphere({ ...data.params })
+    }
   }
 })
 

@@ -1,8 +1,14 @@
 export class AmmoPhysics {
-  worker: Worker
+  public worker: Worker
+  private _onUpdates = (updates: any) => {}
 
   async init() {
     this.worker = new Worker('./worker', { type: 'module' })
+
+    this.worker.addEventListener('message', e => {
+      const { data } = e
+      if (data.msg === 'updates') this._onUpdates(data.updates)
+    })
 
     return new Promise(resolve => {
       this.worker.addEventListener(
@@ -15,22 +21,24 @@ export class AmmoPhysics {
     })
   }
 
-  createId() {
-    return (
-      Math.random().toString(32).substring(2) +
-      '-' +
-      Math.random().toString(32).substring(2)
-    )
+  public onUpdates(fnc: (updates: any) => void) {
+    this._onUpdates = fnc
   }
 
-  addBox(width = 1, height = 1, depth = 1) {
-    const id = this.createId()
+  addSphere(uuid: string) {
+    this.worker.postMessage({
+      msg: 'add',
+      type: 'sphere',
+      params: { uuid },
+    })
+  }
+
+  addBox(uuid: string, width = 1, height = 1, depth = 1) {
     this.worker.postMessage({
       msg: 'add',
       type: 'box',
-      params: { width, height, depth, id }
+      params: { width, height, depth, uuid },
     })
-    return id
   }
 }
 
