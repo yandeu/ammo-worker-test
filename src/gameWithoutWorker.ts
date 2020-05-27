@@ -1,4 +1,4 @@
-import { Physics } from './physics'
+import { Physics } from './physics/physics'
 import * as THREE from 'three'
 import { createObjects, DPI } from './common'
 

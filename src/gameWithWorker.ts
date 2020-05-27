@@ -1,4 +1,4 @@
-import { AmmoPhysics } from './ammoPhysics'
+import { AmmoPhysics } from './physics/physicsWorkerWrapper'
 import * as THREE from 'three'
 
 //@ts-ignore
