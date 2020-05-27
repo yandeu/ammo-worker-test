@@ -137,15 +137,16 @@ export class AmmoPhysics {
       let qz = updates[i + 6]
       let qw = updates[i + 7]
       let obj = this.objects.get(uuid)
-      obj.position.set(px, py, pz)
-      obj.rotation.setFromQuaternion(new Quaternion(qx, qy, qz, qw))
+      obj?.position?.set(px, py, pz)
+      obj?.rotation?.setFromQuaternion(new Quaternion(qx, qy, qz, qw))
       //console.log(obj.name, px, py, pz)
     }
   }
 
   public get add() {
     return {
-      existing: (mesh: THREE.Mesh) => this.addExisting(mesh),
+      existing: (mesh: THREE.Mesh, params: any = {}) =>
+        this.addExisting(mesh, params),
       box: (params: any) => this.worker.postMessage(['add', 'box', params]),
       sphere: (params: any) =>
         this.worker.postMessage(['add', 'sphere', params]),
@@ -156,8 +157,9 @@ export class AmmoPhysics {
     this.objects.set(mesh.uuid, mesh)
   }
 
-  private addExisting(mesh: THREE.Mesh) {
+  private addExisting(mesh: THREE.Mesh, p: any = {}) {
     const { position: pos, quaternion: quat, uuid } = mesh
+    const { mass = 1, collisionFlags = 0 } = p
 
     // set default params
     const defaultParams = {
@@ -186,7 +188,7 @@ export class AmmoPhysics {
 
     // get the right params
     // @ts-ignore
-    let params = { ...defaultParams, ...mesh?.geometry?.parameters }
+    let params = { ...defaultParams, ...mesh?.geometry?.parameters, ...p }
 
     params = {
       ...params,

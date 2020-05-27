@@ -39,15 +39,7 @@ const main = () => {
   const material = new THREE.MeshLambertMaterial({ color: 'darkgray' })
   const ground = new THREE.Mesh(geometry, material)
   scene.add(ground)
-  physics.add.box({
-    uuid: ground.uuid,
-    width: 20,
-    height: 1,
-    depth: 20,
-    collisionFlags: 1,
-    mass: 0,
-  })
-  physics.link(ground)
+  const body = physics.add.existing(ground, { mass: 0, collisionFlags: 1 })
 
   physics.debugDrawerInit(scene)
 
@@ -58,8 +50,9 @@ const main = () => {
   const addSphere = () => {
     const sphere = new THREE.Mesh(sphereGeo, mat)
     scene.add(sphere)
-    physics.add.sphere({ uuid: sphere.uuid })
+    physics.add.box({ pos: { y: 20 }, uuid: sphere.uuid })
     physics.link(sphere)
+    const body = physics.getBody(sphere.uuid)
   }
 
   const addBox = (x: number, y: number, z: number) => {
@@ -86,6 +79,8 @@ const main = () => {
     addBox((Math.random() - 0.5) * 10, 20, (Math.random() - 0.5) * 10)
   }, 2500)
 
+  addSphere()
+
   // this is only for the stats
   physics.worker.addEventListener('message', e => {
     const { data } = e
@@ -103,15 +98,15 @@ const main = () => {
   animate()
 }
 
-const jank = () => {
-  var number = 0
-  for (var i = 0; i < 1000000; i++) {
-    number += Math.random()
-  }
-  setTimeout(() => {
-    jank()
-  }, 1000 / 60)
-}
+// const jank = () => {
+//   var number = 0
+//   for (var i = 0; i < 1000000; i++) {
+//     number += Math.random()
+//   }
+//   setTimeout(() => {
+//     jank()
+//   }, 1000 / 60)
+// }
 // jank()
 
 const start = () => {

@@ -96,7 +96,13 @@ export class Physics {
   private addSphere(params: any = {}) {
     const { radius = 1 } = params
     const collisionShape = new Ammo.btSphereShape(radius / 2)
+    console.log(params)
     this.collisionShapeToRigidBody(collisionShape, params)
+  }
+
+  public addRigidBodyToWorld(uuid: string) {
+    const rb = this.getRigidBody(uuid)
+    if (rb) this.physicsWorld.addRigidBody(rb)
   }
 
   public collisionShapeToRigidBody(
@@ -110,6 +116,7 @@ export class Physics {
       collisionFlags = 0,
       pos = { x: 0, y: 0, z: 0 },
       quat = { x: 0, y: 0, z: 0, w: 1 },
+      addToWorld = true,
     } = params
 
     // we need a uuid!
@@ -121,8 +128,10 @@ export class Physics {
     // apply position and rotation
     const transform = new Ammo.btTransform()
     transform.setIdentity()
-    transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z))
-    transform.setRotation(new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w))
+    transform.setOrigin(new Ammo.btVector3(pos.x || 0, pos.y || 0, pos.z || 0))
+    transform.setRotation(
+      new Ammo.btQuaternion(quat.x || 0, quat.y || 0, quat.z || 0, quat.w || 1)
+    )
 
     // create the rigid body
     const motionState = new Ammo.btDefaultMotionState(transform)
@@ -141,8 +150,8 @@ export class Physics {
     rigidBody.setCollisionFlags(collisionFlags)
 
     // ad rigid body to physics world
-    this.physicsWorld.addRigidBody(rigidBody)
     this.rigidBodies.set(uuid, rigidBody)
+    if (addToWorld) this.addRigidBodyToWorld(uuid)
   }
 
   public setupPhysicsWorld() {
