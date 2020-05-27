@@ -68,7 +68,13 @@ const main = () => {
     box.position.set(x, y, z)
     box.rotation.set(Math.random() * 3, Math.random() * 3, 0)
     scene.add(box)
-    physics.add.existing(box)
+
+    const body = physics.add.existing(box)
+    body.setLinearVelocity(1, 10, 1)
+
+    setTimeout(() => {
+      body.setAngularVelocity(20, 30, 1)
+    }, 100)
 
     setTimeout(() => {
       scene.remove(box)
@@ -76,13 +82,9 @@ const main = () => {
     }, 10000)
   }
 
-  const interval = setInterval(() => {
+  setInterval(() => {
     addBox((Math.random() - 0.5) * 10, 20, (Math.random() - 0.5) * 10)
-  }, 50)
-
-  setTimeout(() => {
-    clearInterval(interval)
-  }, 10000)
+  }, 2500)
 
   // this is only for the stats
   physics.worker.addEventListener('message', e => {
@@ -93,15 +95,24 @@ const main = () => {
 
   const animate = function() {
     stats1.begin()
-
     renderer.render(scene, camera)
-
     stats1.end()
     requestAnimationFrame(animate)
   }
 
   animate()
 }
+
+const jank = () => {
+  var number = 0
+  for (var i = 0; i < 1000000; i++) {
+    number += Math.random()
+  }
+  setTimeout(() => {
+    jank()
+  }, 1000 / 60)
+}
+// jank()
 
 const start = () => {
   return new Promise(resolve => {

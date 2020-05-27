@@ -15,6 +15,23 @@ export class Physics {
     this.setupPhysicsWorld()
   }
 
+  public get body() {
+    return {
+      setLinearVelocity: (p: any) => {
+        this.tmpBtVector3.setValue(p.x, p.y, p.z)
+        this.getRigidBody(p.uuid)?.setLinearVelocity(this.tmpBtVector3)
+      },
+      setAngularVelocity: (p: any) => {
+        this.tmpBtVector3.setValue(p.x, p.y, p.z)
+        this.getRigidBody(p.uuid)?.setAngularVelocity(this.tmpBtVector3)
+      },
+    }
+  }
+
+  public getRigidBody(uuid: string) {
+    return this.rigidBodies.get(uuid)
+  }
+
   public debugDrawerInit(debugVertices: any, debugColors: any) {
     this.debugDrawer = new AmmoDebugDrawer(
       null,

@@ -14,6 +14,12 @@ self.addEventListener('message', (e: any) => {
       if (data[1] === 'box') physics.add.box(data[2])
       if (data[1] === 'sphere') physics.add.sphere(data[2])
     }
+    if (data[0] === 'body') {
+      if (data[1] === 'setLinearVelocity')
+        physics.body.setLinearVelocity(data[2])
+      if (data[1] === 'setAngularVelocity')
+        physics.body.setAngularVelocity(data[2])
+    }
     if (data[0] === 'destroy') physics.destroy(data[1])
     if (data[0] === 'debugDrawer') {
       if (data[1] === 'init')
@@ -29,7 +35,7 @@ Ammo().then(Ammo => {
 
   let last = new Date().getTime()
 
-  setInterval(() => {
+  const loop = () => {
     let now = new Date().getTime()
     const delta = now - last
     last = now
@@ -50,5 +56,8 @@ Ammo().then(Ammo => {
 
     self.postMessage({ msg: 'postUpdate' })
     self.postMessage({ msg: 'updates', updates })
-  }, 1000 / 60)
+
+    requestAnimationFrame(loop)
+  }
+  loop()
 })

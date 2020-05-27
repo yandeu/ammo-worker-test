@@ -11,6 +11,22 @@ import {
 } from 'three'
 import { DefaultBufferSize } from '../debugDrawer'
 
+export class PhysicsBody {
+  constructor(public uuid: string, private worker: Worker) {}
+
+  private send(operation: string, params: any) {
+    this.worker.postMessage(['body', operation, { ...params, uuid: this.uuid }])
+  }
+
+  public setLinearVelocity(x: number = 0, y: number = 0, z: number = 0) {
+    this.send('setLinearVelocity', { x, y, z })
+  }
+
+  public setAngularVelocity(x: number = 0, y: number = 0, z: number = 0) {
+    this.send('setAngularVelocity', { x, y, z })
+  }
+}
+
 export class AmmoPhysics {
   public objects = new Map()
   public worker: Worker
@@ -60,6 +76,10 @@ export class AmmoPhysics {
         { once: true }
       )
     })
+  }
+
+  public getBody(uuid: string) {
+    return new PhysicsBody(uuid, this.worker)
   }
 
   public debugDrawerInit(
@@ -187,6 +207,9 @@ export class AmmoPhysics {
 
     // link rigid body
     this.link(mesh)
+
+    // return body
+    return this.getBody(uuid)
   }
 }
 
