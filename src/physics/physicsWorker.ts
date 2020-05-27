@@ -15,6 +15,10 @@ self.addEventListener('message', (e: any) => {
       if (data[1] === 'sphere') physics.add.sphere(data[2])
     }
     if (data[0] === 'destroy') physics.destroy(data[1])
+    if (data[0] === 'debugDrawer') {
+      if (data[1] === 'init')
+        physics.debugDrawerInit(data[2].debugVertices, data[2].debugColors)
+    }
   }
 })
 
@@ -32,6 +36,18 @@ Ammo().then(Ammo => {
 
     self.postMessage({ msg: 'preUpdate' })
     const updates = physics.update(delta)
+
+    const updated = physics.debugDrawerUpdate()
+    if (updated) {
+      const { verticesArray, colorsArray, index } = physics.debugDrawer
+      self.postMessage({
+        msg: 'debugDrawerUpdate',
+        debugVertices: verticesArray,
+        debugColors: colorsArray,
+        index: index,
+      })
+    }
+
     self.postMessage({ msg: 'postUpdate' })
     self.postMessage({ msg: 'updates', updates })
   }, 1000 / 60)

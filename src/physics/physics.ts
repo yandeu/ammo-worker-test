@@ -1,3 +1,5 @@
+import { AmmoDebugDrawer } from '../debugDrawer'
+
 export class Physics {
   private tmpBtTrans = new Ammo.btTransform()
   private tmpBtVector3 = new Ammo.btVector3()
@@ -7,8 +9,26 @@ export class Physics {
   public physicsWorld: Ammo.btDiscreteDynamicsWorld
   public rigidBodies: Map<string, Ammo.btRigidBody> = new Map()
 
+  public debugDrawer: AmmoDebugDrawer
+
   constructor() {
     this.setupPhysicsWorld()
+  }
+
+  public debugDrawerInit(debugVertices: any, debugColors: any) {
+    this.debugDrawer = new AmmoDebugDrawer(
+      null,
+      debugVertices,
+      debugColors,
+      this.physicsWorld
+    )
+    this.debugDrawer.enable()
+  }
+
+  public debugDrawerUpdate() {
+    if (!this.debugDrawer || !this.debugDrawer.enabled) return false
+    this.debugDrawer.update()
+    return true
   }
 
   public setGravity(x: number = 0, y: number = 0, z: number = 0) {

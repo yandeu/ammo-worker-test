@@ -1,6 +1,6 @@
 /* global Ammo */
 
-export const DefaultBufferSize = 3 * 1000000
+export const DefaultBufferSize = 3 * 10_000
 
 export const AmmoDebugConstants = {
   NoDebug: 0,
@@ -33,7 +33,7 @@ const setXYZ = (array: any, index: any, x: any, y: any, z: any) => {
  * An implementation of the btIDebugDraw interface in Ammo.js, for debug rendering of Ammo shapes
  * @class AmmoDebugDrawer
  * @param {Uint32Array} indexArray
- * @param {Float32Array} verticessArray
+ * @param {Float32Array} verticesArray
  * @param {Float32Array} colorsArray
  * @param {Ammo.btCollisionWorld} world
  * @param {object} [options]
@@ -48,8 +48,8 @@ export class AmmoDebugDrawer {
 
   constructor(
     private indexArray: any,
-    private verticesArray: any,
-    private colorsArray: any,
+    public verticesArray: any,
+    public colorsArray: any,
     private world: any,
     private options: any = {}
   ) {

@@ -1,5 +1,6 @@
 import { AmmoPhysics } from './physics/physicsWorkerWrapper'
 import * as THREE from 'three'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
 //@ts-ignore
 import Stats from 'stats.js'
@@ -26,6 +27,8 @@ const main = () => {
   renderer.setPixelRatio(1)
   document.getElementById('canvas2')?.appendChild(renderer.domElement)
 
+  new OrbitControls(camera, renderer.domElement)
+
   var directionalLight = new THREE.DirectionalLight(0xffffff, 0.8)
   scene.add(directionalLight)
   var light = new THREE.AmbientLight(0x404040) // soft white light
@@ -45,6 +48,8 @@ const main = () => {
     mass: 0,
   })
   physics.link(ground)
+
+  physics.debugDrawerInit(scene)
 
   const sphereGeo = new THREE.SphereGeometry(0.5)
   const boxGeo = new THREE.BoxGeometry(1, 1, 1)
@@ -73,7 +78,7 @@ const main = () => {
 
   const interval = setInterval(() => {
     addBox((Math.random() - 0.5) * 10, 20, (Math.random() - 0.5) * 10)
-  }, 100)
+  }, 50)
 
   setTimeout(() => {
     clearInterval(interval)
