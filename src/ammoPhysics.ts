@@ -9,7 +9,7 @@ import {
   DynamicDrawUsage,
   StaticDrawUsage,
 } from 'three'
-import { DefaultBufferSize } from '../debugDrawer'
+import { DefaultBufferSize } from './debugDrawer'
 
 export class PhysicsBody {
   constructor(public uuid: string, private worker: Worker) {}
@@ -29,13 +29,12 @@ export class PhysicsBody {
 
 export class AmmoPhysics {
   public objects = new Map()
-  public worker: Worker
 
   private debugGeometry: BufferGeometry
 
-  async init() {
-    this.worker = new Worker('./physicsWorker', { type: 'module' })
+  constructor(public worker: Worker) {}
 
+  async init() {
     this.worker.addEventListener('message', e => {
       const { data } = e
       if (data.msg === 'debugDrawerUpdate') {

@@ -1,4 +1,4 @@
-import { AmmoDebugDrawer } from '../debugDrawer'
+import { AmmoDebugDrawer } from './debugDrawer'
 
 export class Physics {
   private tmpBtTrans = new Ammo.btTransform()

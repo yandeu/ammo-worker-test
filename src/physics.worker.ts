@@ -1,8 +1,8 @@
 import { Physics } from './physics'
 
 var Module = { TOTAL_MEMORY: 256 * 1024 * 1024 }
-const urls = 'http://localhost:8080/lib/ammo.wasm.js'
-importScripts(urls)
+
+importScripts(`ammo.wasm.js`)
 
 let physics: Physics
 
