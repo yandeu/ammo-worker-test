@@ -2,7 +2,9 @@ import { Physics } from './physics'
 
 var Module = { TOTAL_MEMORY: 256 * 1024 * 1024 }
 
-importScripts(`ammo.wasm.js`)
+import { wasmSupported } from './wasmSupported'
+const ammoPath = wasmSupported ? 'ammo.wasm.js' : 'ammo.js'
+importScripts(ammoPath)
 
 let physics: Physics
 
