@@ -58,7 +58,7 @@ export class Physics {
 
     // step world
     const deltaTime = delta / 1000
-    this.physicsWorld.stepSimulation(deltaTime)
+    this.physicsWorld.stepSimulation(deltaTime, 4, 1 / 60)
 
     this.rigidBodies.forEach((rb, uuid) => {
       const ms = rb.getMotionState()

@@ -17,6 +17,16 @@
     <script type="module">
       import * as THREE from '/node_modules/three/build/three.module.js'
       import { OrbitControls } from '/node_modules/three/examples/jsm/controls/OrbitControls.js'
+      import Stats from '/node_modules/stats.js/src/Stats.js'
+
+      var stats1 = new Stats()
+      stats1.showPanel(0)
+      document.body.appendChild(stats1.dom)
+      var stats2 = new Stats()
+      stats2.showPanel(0)
+      stats2.dom.style.position = 'absolute'
+      stats2.dom.style.left = '80px'
+      document.body.appendChild(stats2.dom)
 
       const { AmmoPhysics } = ENABLE3D
 
@@ -90,26 +100,26 @@
           setTimeout(() => {
             scene.remove(box)
             physics.destroy(box.uuid)
-          }, 10000)
+          }, 5000)
         }
 
         setInterval(() => {
           addBox((Math.random() - 0.5) * 10, 20, (Math.random() - 0.5) * 10)
-        }, 2500)
+        }, 500)
 
         addSphere()
 
-        // // this is only for the stats
-        // physics.worker.addEventListener('message', e => {
-        //   const { data } = e
-        //   // if (data.msg === 'preUpdate') stats2.begin()
-        //   // if (data.msg === 'postUpdate') stats2.end()
-        // })
+        // this is only for the stats
+        physics.worker.addEventListener('message', e => {
+          const { data } = e
+          if (data.msg === 'preUpdate') stats2.begin()
+          if (data.msg === 'postUpdate') stats2.end()
+        })
 
         const animate = function() {
-          //console.log('asdf')
+          stats1.begin()
           renderer.render(scene, camera)
-          // stats1.end()
+          stats1.end()
           requestAnimationFrame(animate)
         }
 
