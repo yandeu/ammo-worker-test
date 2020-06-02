@@ -6,6 +6,8 @@ import { wasmSupported } from './wasmSupported'
 const ammoPath = wasmSupported ? 'ammo.wasm.js' : 'ammo.js'
 importScripts(ammoPath)
 
+import './requestAnimationFramePolyfill'
+
 let physics: Physics
 
 self.addEventListener('message', (e: any) => {
@@ -43,10 +45,14 @@ Ammo().then(Ammo => {
     last = now
 
     self.postMessage({ msg: 'preUpdate' })
+
     const updates = physics.update(delta)
 
-    const updated = physics.debugDrawerUpdate()
-    if (updated) {
+    self.postMessage({ msg: 'updates', updates })
+
+    const hasUpdated = physics.debugDrawerUpdate()
+
+    if (hasUpdated) {
       const { verticesArray, colorsArray, index } = physics.debugDrawer
       self.postMessage({
         msg: 'debugDrawerUpdate',
@@ -57,7 +63,6 @@ Ammo().then(Ammo => {
     }
 
     self.postMessage({ msg: 'postUpdate' })
-    self.postMessage({ msg: 'updates', updates })
 
     requestAnimationFrame(loop)
   }

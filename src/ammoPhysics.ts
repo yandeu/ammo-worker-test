@@ -37,6 +37,7 @@ export class AmmoPhysics {
   async init() {
     this.worker.addEventListener('message', e => {
       const { data } = e
+      if (data.msg === 'updates') this._onUpdates(data.updates)
       if (data.msg === 'debugDrawerUpdate') {
         const { debugVertices, debugColors, index } = data
         if (this.debugGeometry) {
@@ -63,7 +64,6 @@ export class AmmoPhysics {
           this.debugGeometry.attributes.color.needsUpdate = true
         }
       }
-      if (data.msg === 'updates') this._onUpdates(data.updates)
     })
 
     return new Promise(resolve => {
@@ -138,7 +138,6 @@ export class AmmoPhysics {
       let obj = this.objects.get(uuid)
       obj?.position?.set(px, py, pz)
       obj?.rotation?.setFromQuaternion(new Quaternion(qx, qy, qz, qw))
-      //console.log(obj.name, px, py, pz)
     }
   }
 

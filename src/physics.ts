@@ -96,7 +96,6 @@ export class Physics {
   private addSphere(params: any = {}) {
     const { radius = 1 } = params
     const collisionShape = new Ammo.btSphereShape(radius / 2)
-    console.log(params)
     this.collisionShapeToRigidBody(collisionShape, params)
   }
 
