@@ -66,10 +66,10 @@
         scene.add(ground)
         const body = physics.add.existing(ground, {
           mass: 0,
-          collisionFlags: 1,
+          collisionFlags: 1
         })
 
-        // physics.debugDrawerInit(scene)
+        physics.debugDrawerInit(scene)
 
         const sphereGeo = new THREE.SphereBufferGeometry(0.5)
         const boxGeo = new THREE.BoxGeometry(1, 1, 1)
@@ -91,6 +91,7 @@
           scene.add(box)
 
           const body = physics.add.existing(box)
+
           body.setLinearVelocity(1, 10, 1)
 
           setTimeout(() => {
@@ -102,6 +103,8 @@
             physics.destroy(box.uuid)
           }, 5000)
         }
+
+        addBox(0, 10, 0)
 
         setInterval(() => {
           addBox(
@@ -120,7 +123,7 @@
           if (data.msg === 'postUpdate') stats2.end()
         })
 
-        const animate = function() {
+        const animate = function () {
           stats1.begin()
           renderer.render(scene, camera)
           stats1.end()
@@ -131,6 +134,7 @@
       }
 
       physics.init().then(() => {
+        console.log('main')
         main()
       })
     </script>

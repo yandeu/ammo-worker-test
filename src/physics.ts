@@ -24,7 +24,7 @@ export class Physics {
       setAngularVelocity: (p: any) => {
         this.tmpBtVector3.setValue(p.x, p.y, p.z)
         this.getRigidBody(p.uuid)?.setAngularVelocity(this.tmpBtVector3)
-      },
+      }
     }
   }
 
@@ -77,7 +77,7 @@ export class Physics {
   public get add() {
     return {
       box: (params: any) => this.addBox(params),
-      sphere: (params: any) => this.addSphere(params),
+      sphere: (params: any) => this.addSphere(params)
     }
   }
 
@@ -87,6 +87,7 @@ export class Physics {
   }
 
   private addBox(params: any = {}) {
+    console.log('addBox')
     const { width = 1, height = 1, depth = 1 } = params
     const boxHalfExtents = new Ammo.btVector3(width / 2, height / 2, depth / 2)
     const collisionShape = new Ammo.btBoxShape(boxHalfExtents)
@@ -115,7 +116,7 @@ export class Physics {
       collisionFlags = 0,
       pos = { x: 0, y: 0, z: 0 },
       quat = { x: 0, y: 0, z: 0, w: 1 },
-      addToWorld = true,
+      addToWorld = true
     } = params
 
     // we need a uuid!

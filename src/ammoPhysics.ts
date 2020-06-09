@@ -1,3 +1,5 @@
+import * as Comlink from 'comlink'
+
 import {
   Quaternion,
   BufferGeometry,
@@ -7,34 +9,38 @@ import {
   LineSegments,
   Scene,
   DynamicDrawUsage,
-  StaticDrawUsage,
+  StaticDrawUsage
 } from 'three'
 import { DefaultBufferSize } from './debugDrawer'
+import { Physics } from './physics'
 
 export class PhysicsBody {
-  constructor(public uuid: string, private worker: Worker) {}
-
-  private send(operation: string, params: any) {
-    this.worker.postMessage(['body', operation, { ...params, uuid: this.uuid }])
-  }
+  constructor(public uuid: string, private physics: Physics) {}
 
   public setLinearVelocity(x: number = 0, y: number = 0, z: number = 0) {
-    this.send('setLinearVelocity', { x, y, z })
+    this.physics.body.setLinearVelocity({ uuid: this.uuid, x, y, z })
   }
 
   public setAngularVelocity(x: number = 0, y: number = 0, z: number = 0) {
-    this.send('setAngularVelocity', { x, y, z })
+    this.physics.body.setAngularVelocity({ uuid: this.uuid, x, y, z })
   }
 }
 
 export class AmmoPhysics {
   public objects = new Map()
 
+  public physics: Physics
+
   private debugGeometry: BufferGeometry
 
   constructor(public worker: Worker) {}
 
   async init() {
+    const com: any = Comlink.wrap(this.worker)
+    const wrapper = await new com()
+    await wrapper.init()
+    this.physics = wrapper.physics
+
     this.worker.addEventListener('message', e => {
       const { data } = e
       if (data.msg === 'updates') this._onUpdates(data.updates)
@@ -65,20 +71,10 @@ export class AmmoPhysics {
         }
       }
     })
-
-    return new Promise(resolve => {
-      this.worker.addEventListener(
-        'message',
-        (e: any) => {
-          resolve()
-        },
-        { once: true }
-      )
-    })
   }
 
   public getBody(uuid: string) {
-    return new PhysicsBody(uuid, this.worker)
+    return new PhysicsBody(uuid, this.physics)
   }
 
   public debugDrawerInit(
@@ -105,7 +101,7 @@ export class AmmoPhysics {
     var debugMaterial = new LineBasicMaterial({
       vertexColors: true,
       // vertexColors: VertexColors,
-      depthTest: !drawOnTop,
+      depthTest: !drawOnTop
     })
 
     var debugMesh = new LineSegments(this.debugGeometry, debugMaterial)
@@ -114,15 +110,11 @@ export class AmmoPhysics {
 
     scene.add(debugMesh)
 
-    this.worker.postMessage([
-      'debugDrawer',
-      'init',
-      { debugVertices: debugVertices, debugColors: debugColors },
-    ])
+    this.physics.debugDrawerInit(debugVertices, debugColors)
   }
 
   public destroy(uuid: string) {
-    this.worker.postMessage(['destroy', uuid])
+    this.physics.destroy(uuid)
   }
 
   private _onUpdates(updates: any) {
@@ -145,9 +137,8 @@ export class AmmoPhysics {
     return {
       existing: (mesh: THREE.Mesh, params: any = {}) =>
         this.addExisting(mesh, params),
-      box: (params: any) => this.worker.postMessage(['add', 'box', params]),
-      sphere: (params: any) =>
-        this.worker.postMessage(['add', 'sphere', params]),
+      box: (params: any) => this.physics.add.box(params),
+      sphere: (params: any) => this.physics.add.sphere(params)
     }
   }
 
@@ -168,7 +159,7 @@ export class AmmoPhysics {
       radiusTop: 1, // for the cylinder
       radiusBottom: 1, // for the cylinder
       tube: 0.4, // for the torus
-      tubularSegments: 6, // for the torus
+      tubularSegments: 6 // for the torus
     }
 
     let shape: string = 'unknown'
@@ -192,7 +183,7 @@ export class AmmoPhysics {
       ...params,
       uuid,
       pos: { x: pos.x, y: pos.y, z: pos.z },
-      quat: { x: quat.x, y: quat.y, z: quat.z, w: quat.w },
+      quat: { x: quat.x, y: quat.y, z: quat.z, w: quat.w }
     }
 
     // create rigidBody

@@ -1,4 +1,5 @@
 import { Physics } from './physics'
+import * as Comlink from 'comlink'
 
 var Module = { TOTAL_MEMORY: 256 * 1024 * 1024 }
 
@@ -8,63 +9,56 @@ importScripts(ammoPath)
 
 import './requestAnimationFramePolyfill'
 
-let physics: Physics
+class Wrapper {
+  physics: Physics
 
-self.addEventListener('message', (e: any) => {
-  const { data } = e
+  async init() {
+    return new Promise(resolve => {
+      Ammo().then(() => {
+        this.physics = new Physics()
 
-  if (Array.isArray(data)) {
-    if (data[0] === 'add') {
-      if (data[1] === 'box') physics.add.box(data[2])
-      if (data[1] === 'sphere') physics.add.sphere(data[2])
-    }
-    if (data[0] === 'body') {
-      if (data[1] === 'setLinearVelocity')
-        physics.body.setLinearVelocity(data[2])
-      if (data[1] === 'setAngularVelocity')
-        physics.body.setAngularVelocity(data[2])
-    }
-    if (data[0] === 'destroy') physics.destroy(data[1])
-    if (data[0] === 'debugDrawer') {
-      if (data[1] === 'init')
-        physics.debugDrawerInit(data[2].debugVertices, data[2].debugColors)
-    }
-  }
-})
+        self.postMessage({ msg: 'ready' })
 
-Ammo().then(Ammo => {
-  physics = new Physics()
+        let last = new Date().getTime()
 
-  self.postMessage({ msg: 'ready' })
+        const loop = () => {
+          let now = new Date().getTime()
+          const delta = now - last
+          last = now
 
-  let last = new Date().getTime()
+          self.postMessage({ msg: 'preUpdate' })
 
-  const loop = () => {
-    let now = new Date().getTime()
-    const delta = now - last
-    last = now
+          const updates = this.physics.update(delta)
 
-    self.postMessage({ msg: 'preUpdate' })
+          self.postMessage({ msg: 'updates', updates })
 
-    const updates = physics.update(delta)
+          const hasUpdated = this.physics.debugDrawerUpdate()
+          // console.log(hasUpdated)
 
-    self.postMessage({ msg: 'updates', updates })
+          if (hasUpdated) {
+            const {
+              verticesArray,
+              colorsArray,
+              index
+            } = this.physics.debugDrawer
+            self.postMessage({
+              msg: 'debugDrawerUpdate',
+              debugVertices: verticesArray,
+              debugColors: colorsArray,
+              index: index
+            })
+          }
 
-    const hasUpdated = physics.debugDrawerUpdate()
+          self.postMessage({ msg: 'postUpdate' })
 
-    if (hasUpdated) {
-      const { verticesArray, colorsArray, index } = physics.debugDrawer
-      self.postMessage({
-        msg: 'debugDrawerUpdate',
-        debugVertices: verticesArray,
-        debugColors: colorsArray,
-        index: index,
+          requestAnimationFrame(loop)
+        }
+        loop()
+
+        resolve()
       })
-    }
-
-    self.postMessage({ msg: 'postUpdate' })
-
-    requestAnimationFrame(loop)
+    })
   }
-  loop()
-})
+}
+
+Comlink.expose(Wrapper)
